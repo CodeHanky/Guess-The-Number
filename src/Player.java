@@ -1,16 +1,18 @@
 import java.util.ArrayList;
 
 public class Player {
-	private ArrayList<Integer> guesses = new ArrayList<>();
-	private ArrayList<GuessDistance> guessesTemperature = new ArrayList<>();
+	private ArrayList<Integer> guesses = new ArrayList<>();						//The list of guesses the player has made
+	private ArrayList<GuessDistance> guessesTemperature = new ArrayList<>();	//
 	private boolean isCPU;
 	private int leftGuessBound;
 	private int rightGuessBound;
+	private boolean isWinner;
 	
 	public Player(boolean isCPU, int leftGuessBound, int rightGuessBound) {
 		this.isCPU=isCPU;
 		this.leftGuessBound=leftGuessBound;
 		this.rightGuessBound=rightGuessBound;
+		this.setWinner(false);
 	}
 
 	public ArrayList<Integer> getGuesses() {
@@ -207,6 +209,14 @@ public class Player {
 					System.out.println("Go between " + previous.getGuessNum() + " and " + g.getGuessNum());
 			}
 		}
+	}
+
+	public boolean isWinner() {
+		return isWinner;
+	}
+
+	public void setWinner(boolean isWinner) {
+		this.isWinner = isWinner;
 	}
 	
 }
