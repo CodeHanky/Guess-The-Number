@@ -6,10 +6,14 @@ import java.util.Scanner;
 
 public class Main {
 
+	public static final int GLOBAL_LOWER_BOUND = 1;
+	public static final int GLOBAL_UPPER_BOUND = 100; //The range will be at least [GLOBAL_LOWER_BOUND,GLOBAL_UPPER_BOUND]
+	
 	public static enum MODES {
 		MAN_VS_MACHINE, CPU_BATTLE, MANO_A_MANO, MIXED
 	};
 
+	@SuppressWarnings("serial")
 	public static Map<Integer, Main.MODES> gameMode = new HashMap<>() {
 		{
 			put(1, MODES.MAN_VS_MACHINE);
@@ -20,20 +24,20 @@ public class Main {
 	};
 
 	public static void main(String[] args) {
-		/*
-		 * int upperLimit; //An upper limit to the given range Scanner keyboard = new
-		 * Scanner(System.in); //Input reader Random rd = new Random(); //Seed int
-		 * numberToGuess; //The number to be guessed
-		 */
 
-		Main.MODES currentGameMode = chooseMode(); // Player chooses mode
-
+		Main.MODES currentGameMode = chooseMode(); 		// Player chooses mode
+		int upperBound = 0;								//An upper limit to the given range 
+		Scanner keyboard = new Scanner(System.in);		//Input reader
+		Random rd = new Random();						//Seed
+		int numberToGuess = 0;							//The number to be guessed
+		boolean winnerExists = false;
+		
 		switch (currentGameMode) {
 		case MAN_VS_MACHINE:
-
+			manVSmachine(upperBound, keyboard, rd, numberToGuess, winnerExists);
 			break;
 		case CPU_BATTLE:
-			cpuBattle();
+			cpuBattle(upperBound, keyboard, rd, numberToGuess, winnerExists);
 			break;
 		case MANO_A_MANO:
 
@@ -42,83 +46,128 @@ public class Main {
 
 			break;
 		}
-
-		/*
-		 * ArrayList<Boolean> winners = new ArrayList<>(); //ArrayList that contains the
-		 * winners of the game once it is over for (int i=0;i<3;i++) winners.add(false);
-		 */
-		// User inputs an upper limit
-		/*
-		 * do { System.out.print("Set a max value (0-100): ");
-		 * upperLimit=keyboard.nextInt(); } while (upperLimit<0 || upperLimit>100);
-		 * 
-		 * //Player creation Player CPU1 = new Player(true, 0, upperLimit); Player CPU2
-		 * = new Player(true, 0, upperLimit); Player user = new Player(false, 0,
-		 * upperLimit);
-		 */
-		// Number generation
-		/* numberToGuess = rd.nextInt(upperLimit); */
-
-		/*
-		 * Every loop represents a new turn
-		 * 
-		 * 
-		 *
-		 */
-		/*
-		 * do { System.out.println("----------------NEW TURN------------------------");
-		 * int bet, p1Guess, p2Guess;
-		 * 
-		 * //User places bet
-		 * 
-		 * do { System.out.print("Place your bets (0-100): "); bet = keyboard.nextInt();
-		 * 
-		 * } while (bet<0 || bet>100 || !user.checkGuesses(bet));
-		 * 
-		 * 
-		 * //CPUs place bet p1Guess = getCPUGuess(CPU1, upperLimit, numberToGuess);
-		 * p2Guess = getCPUGuess(CPU2, upperLimit, numberToGuess);
-		 * //user.addUserGuess(bet, numberToGuess);
-		 * 
-		 * //Notify user about this turn's guesses and results
-		 * System.out.println("**********************");
-		 * System.out.println("Player 1 guess: " + p1Guess);
-		 * System.out.println("Player 2 guess: " + p2Guess);
-		 * //System.out.println("User guess: " + bet);
-		 * System.out.println("**********************");
-		 * 
-		 * if (p1Guess == numberToGuess) {
-		 * System.out.println("Player 1 guesses correctly!"); winners.set(0, true); } if
-		 * (p2Guess == numberToGuess) {
-		 * System.out.println("Player 2 guesses correctly!"); winners.set(1, true); }
-		 * 
-		 * 
-		 * if (bet == numberToGuess) { System.out.println("User guesses correctly!");
-		 * winners.set(2, true); }
-		 * 
-		 * } while (!winners.contains(true));
-		 */
-
-		// Form sentence about the winner
-		/*
-		 * String winnerStr = " "; for (boolean win : winners) { if (win) if
-		 * (winners.indexOf(win) == 0) winnerStr.concat("Player 1, "); else if
-		 * (winners.indexOf(win) == 1) winnerStr.concat("Player 2, "); else if
-		 * (winners.indexOf(win) == 2) winnerStr.concat("User"); }
-		 */
-
-		//System.out.println("GAME OVER. Winner(s): " + winnerStr);
 	}
 
-	private static void cpuBattle() {
-		int upperLimit = 0;								//An upper limit to the given range
-		Scanner keyboard = new Scanner(System.in);		//Input reader
-		Random rd = new Random();						//Seed
-		int numberToGuess = 0;								//The number to be guessed
-		ArrayList<Boolean> winners = new ArrayList<>(); //ArrayList that contains the winners of the game once it is over
-		int playerCount=0;
-		ArrayList<Player> cpuPlayers = new ArrayList<>();
-		boolean winnerExists = false;
+	private static void manVSmachine(int upperBound, Scanner keyboard, Random rd, int numberToGuess, boolean winnerExists) {
+		int cpuCount=1;
+		ArrayList<Player> allPlayers = new ArrayList<>();
+		ArrayList<CPUplayer> cpuPlayers = new ArrayList<>();
+		Player user;
+		
+		/*
+		 * System decides an upper limit. 
+		 * If GLOBAL_UPPER_BOUND is 100, nextInt is forced to return a number in the range 
+		 * [0, GLOBAL_UPPER_BOUND+1), aka [0,GLOBAL_UPPER_BOUND] (e.g. [0,100]).
+		 * 
+		 * The desired range for the number to guess is [GLOBAL_LOWER_BOUND, upperBound], where upperBound is determined by the system in this case.
+		 * Therefore, the condition ensures that upperBound will be at least GLOBAL_LOWER_BOUND+1, 
+		 * meaning that the guess range will end up being at least [GLOBAL_LOWER_BOUND, GLOBAL_LOWER_BOUND+1]
+		 */		
+		do {
+			upperBound = rd.nextInt(GLOBAL_UPPER_BOUND+1); 
+		} while (upperBound<GLOBAL_LOWER_BOUND+1);
+		
+		/* 
+		 * System decides the number to be guessed.
+		 * As mentioned above, the desired guess range must be [GLOBAL_LOWER_BOUND, upperBound] (e.g. [1,50] inclusive)
+		 * 
+		 * Same as above, nextInt is forced to return a number in the range [0, upperBound] (e.g. [0,50])
+		 * Finally, since the desired guess range is [GLOBAL_LOWER_BOUND, upperBound], 
+		 * the condition checks that the lower bound is at least equal to GLOBAL_LOWER_BOUND (e.g. 1, meaning the range is at least [1,50]). 
+		 */
+		do {
+			numberToGuess = rd.nextInt(upperBound+1);
+		} while (numberToGuess<GLOBAL_LOWER_BOUND); 	
+		
+		//User player creation
+		user = createUserPlayer(1,keyboard,GLOBAL_LOWER_BOUND,upperBound);
+		
+		//CPU player creation
+		createCPUPlayers(cpuPlayers,keyboard,GLOBAL_LOWER_BOUND,upperBound);
+		
+		allPlayers.add(user);
+		allPlayers.addAll(cpuPlayers);
+		
+		//Game start --CHECK THIS NEXT
+		do 
+		{
+			System.out.println("----------------NEW TURN------------------------");
+			ArrayList<Integer> guesses = new ArrayList<>();
+			
+			//User places bet
+			int userGuess = user.getNewUserGuess(upperBound,numberToGuess);
+			guesses.add(userGuess);
+			
+			//CPUs place bets
+			for (int i=0;i<cpuCount;i++) guesses.add(cpuPlayers.get(i).getNewCPUGuess(upperBound, numberToGuess));
+				
+			//Notify user about this turn's guesses and results one by one
+			System.out.println("**********************");
+			
+			//User's guess
+			System.out.print(user.getName() + "'s guess: " + userGuess);
+			if (userGuess == numberToGuess) {
+				  System.out.println(". " + user.getName() + " guesses correctly!"); 
+				  user.setWinner(true);
+				  winnerExists = true;
+			} 
+			else System.out.println();
+			
+			//CPU guesses
+			for (int i=0;i<cpuCount;i++) {
+				int guess = guesses.get(i);
+				System.out.print(cpuPlayers.get(i).getName() + "'s guess: " + guess);
+				if (guess == numberToGuess) {
+					  System.out.println(". " + cpuPlayers.get(i).getName() + " guesses correctly!"); 
+					  cpuPlayers.get(i).setWinner(true);
+					  winnerExists = true;
+				} 
+				else System.out.println();
+			}
+			
+			System.out.println("**********************");
+
+		} while (!winnerExists);
+		
+		//Create winner string
+		System.out.println("-------------------GAME OVER---------------------------");
+		/*
+		 * String winnerStr = "Winners: "; for (int i=0;i<playerCount;i++) { if
+		 * (cpuPlayers.get(i).isWinner()) winnerStr+=cpuPlayers.get(i).getName()+" "; }
+		 * System.out.println(winnerStr);
+		 */
+		
+	}
+	
+	private static Player createUserPlayer(int ascOrder, Scanner keyboard, int globalLowerBound, int upperBound) {
+		Player user;
+		
+		System.out.print("Please enter a name for Player " + ascOrder + ": ");
+		user = new Player(keyboard.next(), globalLowerBound-1, upperBound+1);
+		System.out.println();
+		
+		return user;
+	}
+
+	private static void createCPUPlayers(ArrayList<CPUplayer> cpuPlayers, Scanner keyboard, int globalLowerBound, int upperBound) {
+		int cpuCount=1;
+		
+		//User chooses the amount of CPUs to play against
+		do {
+			if (cpuCount<1) System.out.println("Please enter a valid number");
+						
+			System.out.print("Choose the number of CPU opponents (1 or more): ");
+			cpuCount = keyboard.nextInt();
+		} while (cpuCount<1);
+		
+		//Add CPUs to array
+		for (int i=0;i<cpuCount;i++) cpuPlayers.add(new CPUplayer("CPU"+(i+1), globalLowerBound-1, upperBound+1));
+		System.out.println();
+	}
+
+	private static void cpuBattle(int upperBound, Scanner keyboard, Random rd, int numberToGuess, boolean winnerExists) {
+		int playerCount=2;
+		ArrayList<CPUplayer> cpuPlayers = new ArrayList<>();
 		
 		//User chooses the amount of CPUs
 		do {
@@ -127,27 +176,30 @@ public class Main {
 			System.out.print("Choose the number of players (2 or more): ");
 			playerCount = keyboard.nextInt();
 		} while (playerCount<2);
+		System.out.println();
 		
 		//User inputs an upper limit
 		do
 		{
-			if (upperLimit!=0) System.out.println("Please enter a valid number for the upper limit");
+			if (upperBound!=0) System.out.println("Please enter a valid number for the upper limit");
 			
 			System.out.print("Set an upper limit (2-100): ");
-			upperLimit=keyboard.nextInt();
-		} while (upperLimit<2 || upperLimit>100); 
+			upperBound=keyboard.nextInt();
+		} while (upperBound<2 || upperBound>100); 
+		System.out.println();
 		
-		for (int i=0;i<playerCount;i++) cpuPlayers.add(new Player(true, 0, upperLimit));
+		for (int i=0;i<playerCount;i++) cpuPlayers.add(new CPUplayer("CPU"+(i+1), 0, upperBound));
 		
 		//User inputs the number to be guessed
 		do
 		{
 			if (numberToGuess!=0) System.out.println("Please enter a valid number");
 			
-			System.out.print("Choose the number to be guessed (1-" + upperLimit + "): ");
+			System.out.print("Choose the number to be guessed (1-" + upperBound + "): ");
 			numberToGuess=keyboard.nextInt();
-		} while (numberToGuess<1 || numberToGuess>upperLimit); 
-
+		} while (numberToGuess<1 || numberToGuess>upperBound); 
+		System.out.println();
+		
 		//Game start
 		do 
 		{
@@ -155,7 +207,7 @@ public class Main {
 			ArrayList<Integer> guesses = new ArrayList<>();
 			
 			//CPUs place bets
-			for (int i=0;i<playerCount;i++) guesses.add(getCPUGuess(cpuPlayers.get(i), upperLimit, numberToGuess));
+			for (int i=0;i<playerCount;i++) guesses.add(cpuPlayers.get(i).getNewCPUGuess(upperBound, numberToGuess));
 				
 			//Notify user about this turn's guesses and results one by one
 			System.out.println("**********************");
@@ -163,12 +215,13 @@ public class Main {
 			for (int i=0;i<playerCount;i++) {
 				//Notify user about this turn's guesses and results one by one
 				int guess = guesses.get(i);
-				System.out.print("CPU" + i+1 + " guess: " + guess);
+				System.out.print(cpuPlayers.get(i).getName() + "'s guess: " + guess);
 				if (guess == numberToGuess) {
-					  System.out.println(". CPU" + i+1 + " guesses correctly!"); 
+					  System.out.println(". " + cpuPlayers.get(i).getName() + " guesses correctly!"); 
 					  cpuPlayers.get(i).setWinner(true);
 					  winnerExists = true;
-				  } 
+				} 
+				else System.out.println();
 			}
 			
 			System.out.println("**********************");
@@ -176,21 +229,13 @@ public class Main {
 		} while (!winnerExists);
 		
 		//Create winner string
-		
-		/*String winnerStr = " ";
-		for (boolean win : winners) {
-			if (win)
-				if (winners.indexOf(win) == 0)
-					winnerStr.concat("Player 1, ");
-				else if (winners.indexOf(win) == 1)
-					winnerStr.concat("Player 2, ");
-				else if (winners.indexOf(win) == 2)
-					winnerStr.concat("User");
-		}*/
-		
-		
-		
-		
+		System.out.println("-------------------GAME OVER---------------------------");
+		String winnerStr = "Winners: ";
+		for (int i=0;i<playerCount;i++) {
+			if (cpuPlayers.get(i).isWinner()) 
+				winnerStr+=cpuPlayers.get(i).getName()+" ";
+		}
+		System.out.println(winnerStr);
 	}
 
 	private static Main.MODES chooseMode() {
@@ -227,16 +272,6 @@ public class Main {
 	 * 
 	 * 
 	 */
-	public static int getCPUGuess(Player CPU, int upperLimit, int numberToGuess) {
-		int guess;
-		Random rdnew = new Random();
-
-		do {
-			guess = rdnew.nextInt(upperLimit);
-		} while (!CPU.checkGuesses(guess));
-
-		CPU.addGuess(guess, numberToGuess);
-		return guess;
-	}
+	
 
 }
