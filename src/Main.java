@@ -31,13 +31,14 @@ public class Main {
 		Random rd = new Random();						//Seed
 		int numberToGuess = 0;							//The number to be guessed
 		boolean winnerExists = false;
+		int turnCount = 0;								//Number of turns passed since the game began
 		
 		switch (currentGameMode) {
 		case MAN_VS_MACHINE:
-			manVSmachine(upperBound, keyboard, rd, numberToGuess, winnerExists);
+			manVSmachine(upperBound, keyboard, rd, numberToGuess, winnerExists, turnCount);
 			break;
 		case CPU_BATTLE:
-			cpuBattle(upperBound, keyboard, rd, numberToGuess, winnerExists);
+			cpuBattle(upperBound, keyboard, rd, numberToGuess, winnerExists, turnCount);
 			break;
 		case MANO_A_MANO:
 
@@ -48,8 +49,7 @@ public class Main {
 		}
 	}
 
-	private static void manVSmachine(int upperBound, Scanner keyboard, Random rd, int numberToGuess, boolean winnerExists) {
-		int cpuCount=1;
+	private static void manVSmachine(int upperBound, Scanner keyboard, Random rd, int numberToGuess, boolean winnerExists, int turnCount) {
 		ArrayList<Player> allPlayers = new ArrayList<>();
 		ArrayList<CPUplayer> cpuPlayers = new ArrayList<>();
 		Player user;
@@ -88,10 +88,10 @@ public class Main {
 		allPlayers.add(user);
 		allPlayers.addAll(cpuPlayers);
 		
-		//Game start --CHECK THIS NEXT
+		//Game start
 		do 
 		{
-			System.out.println("----------------NEW TURN------------------------");
+			System.out.println("----------------TURN " + (++turnCount) +"------------------------");
 			ArrayList<Integer> guesses = new ArrayList<>();
 			
 			//User places bet
@@ -99,27 +99,18 @@ public class Main {
 			guesses.add(userGuess);
 			
 			//CPUs place bets
-			for (int i=0;i<cpuCount;i++) guesses.add(cpuPlayers.get(i).getNewCPUGuess(upperBound, numberToGuess));
+			for (int i=0;i<cpuPlayers.size();i++) guesses.add(cpuPlayers.get(i).getNewCPUGuess(upperBound, numberToGuess));
 				
 			//Notify user about this turn's guesses and results one by one
 			System.out.println("**********************");
-			
-			//User's guess
-			System.out.print(user.getName() + "'s guess: " + userGuess);
-			if (userGuess == numberToGuess) {
-				  System.out.println(". " + user.getName() + " guesses correctly!"); 
-				  user.setWinner(true);
-				  winnerExists = true;
-			} 
-			else System.out.println();
-			
-			//CPU guesses
-			for (int i=0;i<cpuCount;i++) {
+	
+			//Print guesses
+			for (int i=0;i<allPlayers.size();i++) {
 				int guess = guesses.get(i);
-				System.out.print(cpuPlayers.get(i).getName() + "'s guess: " + guess);
+				System.out.print(allPlayers.get(i).getName() + "'s guess: " + guess);
 				if (guess == numberToGuess) {
-					  System.out.println(". " + cpuPlayers.get(i).getName() + " guesses correctly!"); 
-					  cpuPlayers.get(i).setWinner(true);
+					  System.out.println(". " + allPlayers.get(i).getName() + " guesses correctly!"); 
+					  allPlayers.get(i).setWinner(true);
 					  winnerExists = true;
 				} 
 				else System.out.println();
@@ -131,11 +122,14 @@ public class Main {
 		
 		//Create winner string
 		System.out.println("-------------------GAME OVER---------------------------");
-		/*
-		 * String winnerStr = "Winners: "; for (int i=0;i<playerCount;i++) { if
-		 * (cpuPlayers.get(i).isWinner()) winnerStr+=cpuPlayers.get(i).getName()+" "; }
-		 * System.out.println(winnerStr);
-		 */
+		
+		String winnerStr = "Winners: "; 
+		for (int i=0;i<allPlayers.size();i++) { 
+			if (allPlayers.get(i).isWinner()) 
+				winnerStr+=allPlayers.get(i).getName()+" "; 
+		}
+		System.out.println(winnerStr);
+		 
 		
 	}
 	
@@ -151,7 +145,6 @@ public class Main {
 
 	private static void createCPUPlayers(ArrayList<CPUplayer> cpuPlayers, Scanner keyboard, int globalLowerBound, int upperBound) {
 		int cpuCount=1;
-		
 		//User chooses the amount of CPUs to play against
 		do {
 			if (cpuCount<1) System.out.println("Please enter a valid number");
@@ -161,11 +154,11 @@ public class Main {
 		} while (cpuCount<1);
 		
 		//Add CPUs to array
-		for (int i=0;i<cpuCount;i++) cpuPlayers.add(new CPUplayer("CPU"+(i+1), globalLowerBound-1, upperBound+1));
+		for (int i=0;i<cpuCount;i++) cpuPlayers.add(new CPUplayer("CPU_"+(i+1), globalLowerBound-1, upperBound+1));
 		System.out.println();
 	}
 
-	private static void cpuBattle(int upperBound, Scanner keyboard, Random rd, int numberToGuess, boolean winnerExists) {
+	private static void cpuBattle(int upperBound, Scanner keyboard, Random rd, int numberToGuess, boolean winnerExists, int turnCount) {
 		int playerCount=2;
 		ArrayList<CPUplayer> cpuPlayers = new ArrayList<>();
 		
@@ -188,7 +181,7 @@ public class Main {
 		} while (upperBound<2 || upperBound>100); 
 		System.out.println();
 		
-		for (int i=0;i<playerCount;i++) cpuPlayers.add(new CPUplayer("CPU"+(i+1), 0, upperBound));
+		for (int i=0;i<playerCount;i++) cpuPlayers.add(new CPUplayer("CPU_"+(i+1), 0, upperBound));
 		
 		//User inputs the number to be guessed
 		do
@@ -203,7 +196,7 @@ public class Main {
 		//Game start
 		do 
 		{
-			System.out.println("----------------NEW TURN------------------------");
+			System.out.println("----------------TURN " + (++turnCount) +"------------------------");
 			ArrayList<Integer> guesses = new ArrayList<>();
 			
 			//CPUs place bets

@@ -23,14 +23,13 @@ public class Player {
 		int guess;
 		Scanner keyboard = new Scanner(System.in);
 		
+		System.out.println(this.getName() + ", your guess must be between " + this.leftGuessBound + " and " + this.rightGuessBound + ".");
 		do { 
-			System.out.print("Place your bet (1-" + upperLimit + ") :"); 
+			System.out.print("Place your bet (1-" + upperLimit + "): "); 
 			guess = keyboard.nextInt();
-			System.out.println();
 		} while (!this.guessIsUnique(guess));
 
 		this.addGuess(guess, numberToGuess);
-		keyboard.close();
 		return guess;
 	}
 	
@@ -39,7 +38,13 @@ public class Player {
 			System.out.println("You've already used that number!");
 			return false;
 		}
-		return (guess>this.leftGuessBound && guess<this.rightGuessBound);
+		
+		if (guess<=this.leftGuessBound || guess>=this.rightGuessBound) {
+			System.out.println("Choose a number between " + this.leftGuessBound + " and " + this.rightGuessBound + "!");
+			return false;
+		}
+		
+		return true;
 	}
 	
 	public void addGuess(int guess, int numberToGuess) {
