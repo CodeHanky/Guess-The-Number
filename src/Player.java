@@ -28,7 +28,8 @@ public class Player {
 			System.out.print("Place your bet (1-" + upperLimit + "): "); 
 			guess = keyboard.nextInt();
 		} while (!this.guessIsUnique(guess));
-
+		System.out.println();
+		
 		this.addGuess(guess, numberToGuess);
 		return guess;
 	}
