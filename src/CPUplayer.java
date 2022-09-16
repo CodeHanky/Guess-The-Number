@@ -6,7 +6,8 @@ public class CPUplayer extends Player {
 		super(name, leftGuessBound, rightGuessBound);
 	}
 	
-	public int getNewCPUGuess(int upperLimit, int numberToGuess) {
+	@Override
+	public int getNewGuess(int upperLimit, int numberToGuess) {
 		int guess;
 		Random rdnew = new Random();
 
@@ -17,7 +18,8 @@ public class CPUplayer extends Player {
 		this.addGuess(guess, numberToGuess);
 		return guess;
 	}
-	
+
+	@Override
 	public boolean guessIsUnique(int guess) {
 		if (this.guesses.contains(guess)) return false;						//CPU has already chosen that number, so it's not unique
 		return (guess>this.leftGuessBound && guess<this.rightGuessBound); 	//If CPU chooses a number not in the range, it must choose again, otherwise its choice is valid

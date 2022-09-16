@@ -19,11 +19,13 @@ public class Player {
 		return guesses;
 	}
 	
-	public int getNewUserGuess(int upperLimit, int numberToGuess) {
+	public int getNewGuess(int upperLimit, int numberToGuess) {
 		int guess;
+		@SuppressWarnings("resource")
 		Scanner keyboard = new Scanner(System.in);
 		
-		System.out.println(this.getName() + ", your guess must be between " + this.leftGuessBound + " and " + this.rightGuessBound + ".");
+		System.out.println("It's " + this.getName() + "'s turn" + System.lineSeparator() 
+						+ "(HINT: your guess must be between " + this.leftGuessBound + " and " + this.rightGuessBound + ".)");
 		do { 
 			System.out.print("Place your bet (1-" + upperLimit + "): "); 
 			guess = keyboard.nextInt();
