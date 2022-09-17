@@ -21,6 +21,7 @@ public class Player {
 	
 	public int getNewGuess(int upperLimit, int numberToGuess) {
 		int guess;
+		
 		@SuppressWarnings("resource")
 		Scanner keyboard = new Scanner(System.in);
 		
