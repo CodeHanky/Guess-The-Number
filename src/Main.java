@@ -25,7 +25,7 @@ public class Main {
 		}
 	};
 
-	
+	//User chooses a mode
 	public static void main(String[] args) {
 		Scanner keyboard = new Scanner(System.in); // Input reader
 		
@@ -54,28 +54,6 @@ public class Main {
 		} while (playerWillPlayAgain(keyboard));
 		
 		keyboard.close();
-	}
-
-	private static boolean playerWillPlayAgain(Scanner keyboard) {
-		String answer;
-
-		do {
-			System.out.print("Would you like to play again? (y/n): ");
-			answer = keyboard.next();
-			
-			switch ((answer.toLowerCase().charAt(0))) {
-				case 'y':
-					System.out.println("A new round will begin.");
-					System.out.println("--------------------------------------------------");
-					return true;
-				case 'n' :
-					System.out.println("Thank you for playing!");
-					return false;
-				default:
-					System.out.println("Please enter a valid answer!");
-					break;
-			}
-		} while (true);
 	}
 
 	//MODE SELECTION AND PREPARATION METHODS
@@ -318,4 +296,27 @@ public class Main {
 			int cpuCount) {
 		for (int i=0;i<cpuCount;i++) cpuPlayers.add(new CPUplayer("CPU_"+(i+1), globalLowerBound-1, upperBound+1));
 	}
+	
+	//Input prompt for whether the user will play another round
+		private static boolean playerWillPlayAgain(Scanner keyboard) {
+			String answer;
+
+			do {
+				System.out.print("Would you like to play again? (y/n): ");
+				answer = keyboard.next();
+				
+				switch ((answer.toLowerCase().charAt(0))) {
+					case 'y':
+						System.out.println("A new round will begin.");
+						System.out.println("--------------------------------------------------");
+						return true;
+					case 'n' :
+						System.out.println("Thank you for playing!");
+						return false;
+					default:
+						System.out.println("Please enter a valid answer!");
+						break;
+				}
+			} while (true);
+		}
 }
