@@ -1,27 +1,49 @@
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
 
-	public static final int GLOBAL_LOWER_BOUND = -100;
-	public static final int GLOBAL_UPPER_BOUND = 100; //The range will be at least [GLOBAL_LOWER_BOUND,GLOBAL_UPPER_BOUND]
+	public static final int GLOBAL_LOWER_BOUND = 1;
+	public static final int GLOBAL_UPPER_BOUND = 100; //The guess range will be at least [GLOBAL_LOWER_BOUND,GLOBAL_UPPER_BOUND]
 	
 	//Enumeration of all available game modes
-	public static enum MODES {
-		MAN_VS_MACHINE, CPU_BATTLE, MANO_A_MANO, MIXED
-	};
+	public static class MODES {
+		
+		//If you need to add more game modes, add a new entry here...
+		private static enum AVAILABLE_MODES {
+			MAN_VS_MACHINE, CPU_BATTLE, MANO_A_MANO, MIXED
+		}
+		
+		//...and continue here, with a proper title and a description. Everything else is calculated dynamically.
+		@SuppressWarnings("serial")
+		private static HashMap<AVAILABLE_MODES, HashMap<String, String>> MODE_INFO = new HashMap<>() {
+			{
+				addNewMode(AVAILABLE_MODES.MAN_VS_MACHINE, 	"Man VS Machine", 		"Face off against a number of CPU opponents");
+				addNewMode(AVAILABLE_MODES.CPU_BATTLE, 		"Battle of the CPUs", 	"Have CPUs face off against each other (you choose the number to guess)");
+				addNewMode(AVAILABLE_MODES.MANO_A_MANO, 	"Mano-a-mano", 			"Face off against a number of friends");
+				addNewMode(AVAILABLE_MODES.MIXED, 			"Mixed", 				"Face off against a number of friends and CPU opponents");
+			}
+
+			private void addNewMode(AVAILABLE_MODES mode, String title, String description) {
+				put(mode, new HashMap<>() {{ put(title, description); }});
+			}	
+		};
+	}
 
 	//Hashmap containing the above game modes paired with a unique ID
 	@SuppressWarnings("serial")
-	public static Map<Integer, Main.MODES> gameMode = new HashMap<>() {
+	public static HashMap<Integer, Entry<Main.MODES.AVAILABLE_MODES, HashMap<String, String>>> GAME_MODES = new HashMap<>() {
 		{
-			put(1, MODES.MAN_VS_MACHINE);
-			put(2, MODES.CPU_BATTLE);
-			put(3, MODES.MANO_A_MANO);
-			put(4, MODES.MIXED);
+			int i=0;
+			
+			//IMPORTANT: entrySet() produces a different order than the desired one 
+			//Should change the iterated object
+			for (Entry<Main.MODES.AVAILABLE_MODES, HashMap<String, String>> modeEntry : MODES.MODE_INFO.entrySet()) {
+				put(++i,modeEntry);
+			};
 		}
 	};
 
@@ -58,16 +80,15 @@ public class Main {
 
 	//MODE SELECTION AND PREPARATION METHODS
 
-	private static Main.MODES chooseMode(Scanner keyboard) {
+	private static MODES.AVAILABLE_MODES chooseMode(Scanner keyboard) {
 
 		int choice = -1; // User's choice for game mode
 
-		System.out.println("Available game modes: " + System.lineSeparator()
-				+ "1) Man VS Machine - Face off against a number of CPU opponents" + System.lineSeparator()
-				+ "2) Battle of the CPUs - Have CPUs face off against each other (you choose the number to guess)" + System.lineSeparator() 
-				+ "3) Mano-a-mano - Face off against a number of friends" + System.lineSeparator()
-				+ "4) Mixed - Face off against a number of friends and CPU opponents" + System.lineSeparator()
-		);
+		System.out.println("Available game modes: " + System.lineSeparator());
+		
+		for (MODES.AVAILABLE_MODES mode : MODES.AVAILABLE_MODES.values()) {
+			printModeInfo(mode,mode.ordinal()+1); //Ordinal returns the "position" of the element in the enum element array
+		}
 
 		do {
 			if (choice > 0)
@@ -76,11 +97,18 @@ public class Main {
 			System.out.print("Choose a game mode (1,2,3,etc): ");
 			choice = keyboard.nextInt();
 
-		} while (!Main.gameMode.containsKey(choice));
+		} while (!Main.GAME_MODES.containsKey(choice));
 
-		return Main.gameMode.get(choice);
+		return Main.GAME_MODES.get(choice).getKey();
 	}
 	
+	private static void printModeInfo(MODES.AVAILABLE_MODES mode, int ascOrder) {
+		String modeTitle = (String) MODES.MODE_INFO.get(mode).keySet().toArray()[0];
+		String modeDescription = MODES.MODE_INFO.get(mode).get(modeTitle);
+		
+		System.out.println(ascOrder + ") " + modeTitle + " - " + modeDescription);
+	}
+
 	private static void manVSmachine() {
 		
 		Scanner keyboard = new Scanner(System.in);			//Input reader
