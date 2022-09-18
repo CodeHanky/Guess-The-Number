@@ -8,42 +8,22 @@ public class Main {
 
 	public static final int GLOBAL_LOWER_BOUND = 1;
 	public static final int GLOBAL_UPPER_BOUND = 100; //The guess range will be at least [GLOBAL_LOWER_BOUND,GLOBAL_UPPER_BOUND]
-	
+		
 	//Enumeration of all available game modes
-	public static class MODES {
-		
-		//If you need to add more game modes, add a new entry here...
-		private static enum AVAILABLE_MODES {
-			MAN_VS_MACHINE, CPU_BATTLE, MANO_A_MANO, MIXED
-		}
-		
-		//...and continue here, with a proper title and a description. Everything else is calculated dynamically.
-		@SuppressWarnings("serial")
-		private static HashMap<AVAILABLE_MODES, HashMap<String, String>> MODE_INFO = new HashMap<>() {
-			{
-				addNewMode(AVAILABLE_MODES.MAN_VS_MACHINE, 	"Man VS Machine", 		"Face off against a number of CPU opponents");
-				addNewMode(AVAILABLE_MODES.CPU_BATTLE, 		"Battle of the CPUs", 	"Have CPUs face off against each other (you choose the number to guess)");
-				addNewMode(AVAILABLE_MODES.MANO_A_MANO, 	"Mano-a-mano", 			"Face off against a number of friends");
-				addNewMode(AVAILABLE_MODES.MIXED, 			"Mixed", 				"Face off against a number of friends and CPU opponents");
-			}
-
-			private void addNewMode(AVAILABLE_MODES mode, String title, String description) {
-				put(mode, new HashMap<>() {{ put(title, description); }});
-			}	
-		};
+	
+	//If you need to add more game modes, add a new entry here...
+	public static enum MODES {
+		MAN_VS_MACHINE, CPU_BATTLE, MANO_A_MANO, MIXED
 	}
-
-	//Hashmap containing the above game modes paired with a unique ID
+	
+	//...and continue here, with a proper title and a description. Everything else is calculated dynamically.
 	@SuppressWarnings("serial")
-	public static HashMap<Integer, Entry<Main.MODES.AVAILABLE_MODES, HashMap<String, String>>> GAME_MODES = new HashMap<>() {
+	public static ArrayList<GameMode> MODE_INFO = new ArrayList<>() {
 		{
-			int i=0;
-			
-			//IMPORTANT: entrySet() produces a different order than the desired one 
-			//Should change the iterated object
-			for (Entry<Main.MODES.AVAILABLE_MODES, HashMap<String, String>> modeEntry : MODES.MODE_INFO.entrySet()) {
-				put(++i,modeEntry);
-			};
+			add(new GameMode(MODES.MAN_VS_MACHINE, 	"Man VS Machine", 		"Face off against a number of CPU opponents"));
+			add(new GameMode(MODES.CPU_BATTLE, 		"Battle of the CPUs", 	"Have CPUs face off against each other (you choose the number to guess)"));
+			add(new GameMode(MODES.MANO_A_MANO, 	"Mano-a-mano", 			"Face off against a number of friends"));
+			add(new GameMode(MODES.MIXED, 			"Mixed", 				"Face off against a number of friends and CPU opponents"));
 		}
 	};
 
@@ -80,14 +60,14 @@ public class Main {
 
 	//MODE SELECTION AND PREPARATION METHODS
 
-	private static MODES.AVAILABLE_MODES chooseMode(Scanner keyboard) {
+	private static MODES chooseMode(Scanner keyboard) {
 
 		int choice = -1; // User's choice for game mode
 
 		System.out.println("Available game modes: " + System.lineSeparator());
 		
-		for (MODES.AVAILABLE_MODES mode : MODES.AVAILABLE_MODES.values()) {
-			printModeInfo(mode,mode.ordinal()+1); //Ordinal returns the "position" of the element in the enum element array
+		for (int i=0;i<MODE_INFO.size();++i) {
+			printModeInfo(MODE_INFO.get(i),i+1);
 		}
 
 		do {
@@ -97,16 +77,13 @@ public class Main {
 			System.out.print("Choose a game mode (1,2,3,etc): ");
 			choice = keyboard.nextInt();
 
-		} while (!Main.GAME_MODES.containsKey(choice));
+		} while (!MODE_INFO.contains(MODE_INFO.get(choice-1)));
 
-		return Main.GAME_MODES.get(choice).getKey();
+		return MODE_INFO.get(choice-1).getMode();
 	}
 	
-	private static void printModeInfo(MODES.AVAILABLE_MODES mode, int ascOrder) {
-		String modeTitle = (String) MODES.MODE_INFO.get(mode).keySet().toArray()[0];
-		String modeDescription = MODES.MODE_INFO.get(mode).get(modeTitle);
-		
-		System.out.println(ascOrder + ") " + modeTitle + " - " + modeDescription);
+	private static void printModeInfo(GameMode mode, int ascOrder) {
+		System.out.println(ascOrder + ") " + mode.getTitle() + " - " + mode.getDescription());
 	}
 
 	private static void manVSmachine() {
