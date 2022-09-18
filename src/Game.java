@@ -2,6 +2,8 @@ import java.util.ArrayList;
 
 public class Game {
 	
+	int sleepTime = 0;			//in milliseconds
+	
 	int upperBound;
 	int numberToGuess;
 	ArrayList<Player> players;
@@ -54,12 +56,13 @@ public class Game {
 			}
 			System.out.println("**********************");
 			
+			//Simulate thinking time
 			try {
-				Thread.sleep(2000);
+				Thread.sleep(sleepTime);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
 		} while (!winnerExists);
 		
 		//Create winner string
@@ -68,7 +71,7 @@ public class Game {
 		String winnerStr = "WINNERS: | "; 
 		for (Player player : this.players) { 
 			if (player.isWinner()) 
-				winnerStr+=player.getName()+" |"; 
+				winnerStr+=player.getName()+" | "; 
 		}
 		System.out.println(winnerStr);
 	}

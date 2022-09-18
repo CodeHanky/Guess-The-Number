@@ -1,13 +1,11 @@
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
 
 	public static final int GLOBAL_LOWER_BOUND = 1;
-	public static final int GLOBAL_UPPER_BOUND = 100; //The guess range will be at least [GLOBAL_LOWER_BOUND,GLOBAL_UPPER_BOUND]
+	public static final int GLOBAL_UPPER_BOUND = 1000; //The guess range will be at least [GLOBAL_LOWER_BOUND,GLOBAL_UPPER_BOUND]
 		
 	//Enumeration of all available game modes
 	
