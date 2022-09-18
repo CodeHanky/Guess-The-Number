@@ -19,6 +19,7 @@ public class Player {
 		return guesses;
 	}
 	
+	//Test comment
 	public int getNewGuess(int upperLimit, int numberToGuess) {
 		int guess;
 		
